@@ -1,0 +1,143 @@
+# Programming in Go
+
+David Klassen
+30 Aug 2023
+david.klassen@foodpanda.co.th
+
+: Hi, thank you for joining. I'm working on a series of workshops about programming in Go
+: Basic concepts like pointers, memory model, interfaces, concurrency.
+: Common misconceptions. Best practices. Language implementation details.
+: Tips on writing, testing and debugging Go code.
+: As interactive as possible. Demos. Encourage you to follow demos examples on your laptops and ask questions at any time.
+
+## Reading list
+
+- [A Tour of Go](https://go.dev/tour/)
+- [Effective Go](https://go.dev/doc/effective_go)
+- [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments/)
+
+.image img_6.png 500 _
+
+: Get back to these resources once in a while. Discover new details.
+
+## Tools
+
+- [Go](https://go.dev/doc/install)
+- [Goland](https://www.jetbrains.com/go/download/#section=mac)
+- [Delve](https://github.com/go-delve/delve/tree/master)
+
+.image img_7.png 400 _
+
+## WHY NOT WORK!!?!
+
+.image img_8.png 150 _
+
+.code -edit user.go /START OMIT/,/END OMIT/
+
+: Let's talk about sharing data between different part of our program. Let's look at this example. Who can tell me what is wrong with this code?
+: How do we fix it? How do we check if it works?
+: Tests! Why we should use standard library for testing.
+: Use constructor to indicate preferred semantics.
+
+## Values and Pointers
+
+- What does it mean to share data?
+- What does it mean to pass a value?
+- What does it mean to pass a pointer?
+
+.image img_2.png _ 860
+
+: What has changed when we changed the function argument type?
+: We have changed the way we share data from copying memory to referencing memory.
+
+## Function calls and Stack
+
+- [Go internal ABI specification](https://go.googlesource.com/go/+/refs/heads/dev.regabi/src/cmd/compile/internal-abi.md)
+
+.image img_10.png _ 1000
+
+## Memory operations
+
+- Assignment
+
+        a := 42
+- Address operator
+
+        a := &b
+- Dereferencing
+
+        a := *b
+- Indirect assignment
+
+        *a := b
+
+: Let's take a closer look at the basic memory operations that are available in Go
+
+## Primitive types
+
+- Integers and Boolean
+- Floats and Complex numbers
+- Pointers
+- String*
+
+Almost always passed by value.
+
+: Share by value
+: What is a pointer type
+: What is special about string?
+
+## Struct types
+
+        type User struct {
+                Name  string
+                Email string
+        }
+
+        func NewUser(name, email string) *User {
+                return &User{
+                        Name:  name,
+                        Email: email,
+                }
+        }
+
+        type Time struct {
+                sec  uint64
+                nsec uint64
+        }
+
+        func Now() Time {
+                sec, nsec := now()
+                return Time{sec: sec, nsec: nsec}
+        }
+
+: Share by pointer, except ... Time, Shapes, Colors...
+: Usually during object lifecycle fields can change independently.
+: Internal state (for example Mutex) should be passed by reference.
+
+## Reference-like types
+
+- Slice
+- Map
+- Channel
+- Interface
+- Function
+
+.image img_11.png _ 600
+
+: unexported pointer to underlying data structure
+: what happens when you pass a slice as an argument?
+: has a header
+: are kind of values but can be nil
+: https://github.com/golang/go/wiki/SliceTricks
+
+## Range iteration
+
+.code -edit range.go /START OMIT/,/END OMIT/
+
+## Tips
+
+- Use value semantics for primitive and reference-like types.
+- Use pointer semantics for most struct types.
+- Use value semantics for structs that represent objects with immutable nature (Point, Shape, Color, Coordinate, Time).
+- Use constructor return value type as a hint to indicate preferred semantics, when declaring a type.
+- Be consistent, use same semantics for a given type everywhere in the program (method receivers, function arguments and return values, slice and map elements, struct fields).
